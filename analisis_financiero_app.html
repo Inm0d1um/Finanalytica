@@ -141,6 +141,90 @@
     .grid-2 { grid-template-columns: 1fr; }
   }
 
+  /* ── HAMBURGER ── */
+  .hamburger {
+    display: none; flex-direction: column; justify-content: center; gap: 5px;
+    width: 36px; height: 36px; cursor: pointer; padding: 6px;
+    border-radius: var(--radius-sm); border: 1px solid var(--border2);
+    background: var(--bg3); flex-shrink: 0;
+  }
+  .hamburger span { display: block; height: 2px; background: var(--text2); border-radius: 2px; transition: all 0.25s; }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ── BOTTOM NAV (móvil) ── */
+  .bottom-nav {
+    display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+    background: var(--bg1); border-top: 1px solid var(--border);
+    padding: 8px 4px; padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    justify-content: space-around; align-items: flex-end;
+  }
+  .bn-item {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 6px 8px; border-radius: var(--radius-sm); cursor: pointer;
+    color: var(--text3); font-size: 9px; font-weight: 700; letter-spacing: 0.3px;
+    text-transform: uppercase; transition: all 0.15s; min-width: 48px;
+  }
+  .bn-item svg { width: 20px; height: 20px; stroke: currentColor; }
+  .bn-item.active { color: var(--accent); }
+
+  /* ── DRAWER OVERLAY ── */
+  .drawer-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    z-index: 150; backdrop-filter: blur(2px);
+  }
+  .drawer-overlay.open { display: block; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 640px) {
+    html, body { height: 100%; overflow: hidden; }
+    .app { height: 100dvh; }
+    .sidebar {
+      position: fixed; left: -270px; top: 0; bottom: 0; z-index: 160;
+      width: 260px; min-width: 260px;
+      transition: left 0.28s cubic-bezier(.4,0,.2,1);
+      box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+    }
+    .sidebar.open { left: 0; }
+    .sidebar-bottom { display: none; }
+    .hamburger { display: flex; }
+    .topbar { padding: 0 14px; height: 52px; gap: 10px; }
+    .topbar-title { font-size: 13px; }
+    .topbar-badge { font-size: 10px; padding: 2px 8px; }
+    .btn { padding: 6px 10px; font-size: 11px; }
+    .btn .btn-label { display: none; }
+    .content { padding: 14px; padding-bottom: 86px; }
+    .bottom-nav { display: flex; }
+    .grid-4 { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-3 { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-2 { grid-template-columns: 1fr; gap: 10px; }
+    .section-title { font-size: 20px; }
+    .section-header { margin-bottom: 14px; }
+    .card { padding: 14px; margin-bottom: 10px; }
+    .metric { padding: 12px; }
+    .metric-value { font-size: 18px; }
+    .form-grid { grid-template-columns: 1fr; gap: 10px; }
+    .form-group.full { grid-column: 1; }
+    .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; padding-bottom: 2px; }
+    .tab { white-space: nowrap; flex-shrink: 0; }
+    .ratio-table th:last-child, .ratio-table td:last-child { display: none; }
+    .ia-messages { max-height: 340px; min-height: 180px; }
+    .ia-bubble { max-width: 92%; font-size: 12px; }
+    .ia-quick-btns { gap: 6px; padding: 10px 12px 0; }
+    .ia-quick { font-size: 10px; padding: 4px 10px; }
+    .ia-hero { padding: 16px; }
+    .ia-hero-title { font-size: 19px; }
+    .chart-wrap { height: 200px !important; }
+    #pwa-banner { bottom: 76px; }
+  }
+
+  @media (min-width: 641px) and (max-width: 900px) {
+    .sidebar { width: 200px; min-width: 200px; }
+    .content { padding: 18px; }
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+  }
+
   /* ── METRIC CARDS ── */
   .metric {
     background: var(--bg2); border: 1px solid var(--border);
@@ -481,14 +565,20 @@
     </div>
   </aside>
 
+  <!-- Drawer overlay -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="toggleSidebar()"></div>
+
   <!-- ── MAIN ── -->
   <main class="main">
     <div class="topbar">
+      <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
       <span class="topbar-title" id="topbar-title">Dashboard</span>
       <span class="topbar-badge" id="topbar-badge">Sin datos</span>
       <button class="btn" onclick="exportarCSV()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-        Exportar
+        <span class="btn-label">Exportar</span>
       </button>
     </div>
 
@@ -894,7 +984,31 @@ inventarios,200000
       </div>
 
     </div><!-- /content -->
-  </main>
+  
+  <!-- ── BOTTOM NAV (móvil) ── -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <div class="bn-item active" data-view="dashboard" onclick="navigateMobile(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Inicio
+    </div>
+    <div class="bn-item" data-view="ratios" onclick="navigateMobile(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Ratios
+    </div>
+    <div class="bn-item" data-view="diagnostico" onclick="navigateMobile(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      Diagnóstico
+    </div>
+    <div class="bn-item" data-view="ia" onclick="navigateMobile(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a4 4 0 014 4v1h1a3 3 0 013 3v2a3 3 0 01-3 3h-1v1a4 4 0 01-8 0v-1H7a3 3 0 01-3-3v-2a3 3 0 013-3h1V6a4 4 0 014-4z"/><circle cx="9" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="10" r="1" fill="currentColor"/></svg>
+      IA
+    </div>
+    <div class="bn-item" data-view="ingresar" onclick="navigateMobile(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+      Datos
+    </div>
+  </nav>
+</main>
 </div>
 
 <!-- Status bar -->
@@ -928,6 +1042,8 @@ function navigate(el) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + view).classList.add('active');
   document.getElementById('topbar-title').textContent = VIEWS[view];
+  syncBottomNav(view);
+  closeSidebar();
   if (view === 'ia') { actualizarVistaIA(); return; }
   if (datos && view !== 'ingresar' && view !== 'importar') renderView(view);
 }
@@ -1771,6 +1887,46 @@ function instalarPWA() {
     deferredPrompt = null;
     document.getElementById('pwa-banner').style.display = 'none';
   });
+}
+
+// ── MOBILE NAV ──
+function toggleSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  const hamburger = document.getElementById('hamburger');
+  const overlay = document.getElementById('drawer-overlay');
+  const open = sidebar.classList.toggle('open');
+  hamburger.classList.toggle('open', open);
+  overlay.classList.toggle('open', open);
+}
+
+function closeSidebar() {
+  document.querySelector('.sidebar').classList.remove('open');
+  const h = document.getElementById('hamburger');
+  if (h) h.classList.remove('open');
+  const o = document.getElementById('drawer-overlay');
+  if (o) o.classList.remove('open');
+}
+
+function syncBottomNav(view) {
+  document.querySelectorAll('.bn-item').forEach(b => {
+    b.classList.toggle('active', b.dataset.view === view);
+  });
+}
+
+function navigateMobile(el) {
+  const view = el.dataset.view;
+  const sidebarItem = document.querySelector(`.nav-item[data-view="${view}"]`);
+  if (sidebarItem) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    sidebarItem.classList.add('active');
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + view).classList.add('active');
+    document.getElementById('topbar-title').textContent = VIEWS[view];
+    if (view === 'ia') { actualizarVistaIA(); }
+    else if (datos && view !== 'ingresar' && view !== 'importar') renderView(view);
+  }
+  syncBottomNav(view);
+  closeSidebar();
 }
 
 // ── SERVICE WORKER ──
