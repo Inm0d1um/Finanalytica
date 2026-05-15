@@ -508,16 +508,16 @@
   /* ── QR BADGE ── */
   .qr-badge {
     position: fixed; bottom: 24px; right: 20px; z-index: 500;
-    background: var(--bg2); border: 1px solid var(--border);
-    border-radius: 10px; padding: 8px; cursor: pointer;
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 12px; padding: 10px; cursor: pointer;
     box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     transition: transform 0.2s, box-shadow 0.2s;
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
   }
-  .qr-badge:hover { transform: scale(1.06); box-shadow: 0 6px 28px rgba(0,0,0,0.5); }
-  .qr-badge canvas { border-radius: 4px; display: block; }
-  .qr-badge-label { font-size: 8px; font-weight: 700; color: var(--text3); letter-spacing: 0.8px; text-transform: uppercase; }
-  @media (max-width: 640px) { .qr-badge { bottom: 80px; right: 14px; } }
+  .qr-badge:hover { transform: scale(1.04); box-shadow: 0 6px 28px rgba(0,0,0,0.5); }
+  .qr-badge img { border-radius: 6px; display: block; width: 120px; height: 120px; }
+  .qr-badge-label { font-size: 9px; font-weight: 700; color: var(--text3); letter-spacing: 0.8px; text-transform: uppercase; }
+  @media (max-width: 640px) { .qr-badge { display: none; } }
 
   /* ── CONFIG MODAL ── */
   .modal-backdrop {
@@ -1481,7 +1481,7 @@ impuestos,18000000`;
 }
 
 // Inicializar tabla al cargar
-document.addEventListener('DOMContentLoaded', renderCsvFieldTable);
+
 
 // ══════════════════════════════════════════════════════════════
 // EXPORTAR CSV
@@ -1539,10 +1539,10 @@ function fmtM(n) {
   if (n === null) return 'N/D';
   const abs = Math.abs(n);
   const sign = n < 0 ? '-' : '';
-  if (abs >= 1e9) return sign + (abs/1e9).toFixed(1) + 'B';
-  if (abs >= 1e6) return sign + (abs/1e6).toFixed(1) + 'M';
-  if (abs >= 1e3) return sign + (abs/1e3).toFixed(0) + 'K';
-  return sign + abs.toFixed(0);
+  if (abs >= 1e9) return sign + '$' + (abs/1e9).toFixed(1) + 'B';
+  if (abs >= 1e6) return sign + '$' + (abs/1e6).toFixed(1) + 'M';
+  if (abs >= 1e3) return sign + '$' + (abs/1e3).toFixed(0) + 'K';
+  return sign + '$' + new Intl.NumberFormat('es-CL', {maximumFractionDigits:0}).format(abs);
 }
 
 function badge(val, bueno, malo, inverso, unidad='') {
@@ -2081,7 +2081,7 @@ async function analizarConIA() {
 
 Sé directo, específico con los números reales, y usa lenguaje profesional pero accesible. No repitas los datos, interprétales.`;
 
-  const sistema = `Eres un asesor financiero experto con 20 años de experiencia en análisis empresarial. Analizas datos financieros reales y das consejos concretos, específicos y accionables. Tienes acceso a los siguientes datos financieros de la empresa:\n\n${contexto}\n\nResponde siempre en español. Sé conciso pero sustancial. Usa **negritas** para términos clave y # para títulos de sección.`;
+  const sistema = `Eres un asesor financiero experto con 20 años de experiencia en análisis empresarial. Analizas datos financieros reales y das consejos concretos, específicos y accionables. Tienes acceso a los siguientes datos financieros de la empresa:\n\n${contexto}\n\nResponde siempre en español. Los valores monetarios están en pesos chilenos (CLP), usa el símbolo $ y formato chileno (ej: $1.500.000). Sé conciso pero sustancial. Usa **negritas** para términos clave y # para títulos de sección.`;
 
   try {
     const respuesta = await llamarAPI([{ role: 'user', content: prompt }], sistema);
@@ -2117,7 +2117,7 @@ async function enviarMensajeIA() {
   agregarTyping();
 
   const contexto = construirContextoFinanciero();
-  const sistema = `Eres un asesor financiero experto con 20 años de experiencia. Tienes acceso a los siguientes datos financieros reales de la empresa:\n\n${contexto}\n\nResponde siempre en español. Sé específico con los números cuando sea relevante. Usa **negritas** para términos clave. Sé conciso y directo.`;
+  const sistema = `Eres un asesor financiero experto con 20 años de experiencia. Tienes acceso a los siguientes datos financieros reales de la empresa:\n\n${contexto}\n\nResponde siempre en español. Los valores monetarios están en pesos chilenos (CLP), usa el símbolo $ y formato chileno (ej: $1.500.000). Sé específico con los números cuando sea relevante. Usa **negritas** para términos clave. Sé conciso y directo.`;
 
   iaHistory.push({ role: 'user', content: texto });
   // Keep last 10 messages for context
@@ -2225,9 +2225,25 @@ if ('serviceWorker' in navigator) {
 
 
 <!-- QR Badge (discreto, esquina inferior derecha) -->
-<div class="qr-badge" id="qr-badge" onclick="abrirConfig()" title="Escanea para abrir en móvil">
-  <canvas id="qr-canvas" width="72" height="72"></canvas>
-  <span class="qr-badge-label">Abrir en móvil</span>
+<div class="qr-badge" id="qr-badge" title="Escanea para abrir en móvil">
+  <img id="qr-img" src="" alt="QR" width="120" height="120">
+  <span class="qr-badge-label">📱 Abrir en móvil</span>
+</div>
+
+<!-- Welcome Modal -->
+<div class="modal-backdrop" id="welcome-modal">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:420px">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:36px;margin-bottom:10px">📊</div>
+      <div class="modal-title" style="font-size:20px">Bienvenido a FinAnalytica</div>
+      <div class="modal-sub" style="margin-top:6px">Ingresa los datos de tu empresa para comenzar el análisis financiero</div>
+    </div>
+    <div class="modal-label">🏢 Nombre de la empresa</div>
+    <input class="modal-input" id="welcome-nombre" type="text" placeholder="Ej: Comercial Los Andes SpA" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')document.getElementById('welcome-periodo').focus()">
+    <div class="modal-label" style="margin-top:14px">📅 Período / Año fiscal</div>
+    <input class="modal-input" id="welcome-periodo" type="text" placeholder="Ej: 2024, T1-2025" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')confirmarBienvenida()">
+    <button class="btn btn-accent" style="width:100%;margin-top:22px;padding:14px;font-size:15px" onclick="confirmarBienvenida()">Comenzar análisis →</button>
+  </div>
 </div>
 
 <!-- Config Modal -->
@@ -2267,31 +2283,17 @@ if ('serviceWorker' in navigator) {
 </div>
 
 <script>
-// ── QR CODE (sin librería externa — implementación mínima) ──
-// Generamos un QR simple usando la URL actual
+// ── QR CODE ──
 (function generateQR() {
-  // Usamos una API pública de QR solo para la URL (no datos sensibles)
-  const canvas = document.getElementById('qr-canvas');
-  const url = encodeURIComponent('https://inm0d1um.github.io/Finanalytica/');
-  const img = new Image();
-  img.crossOrigin = 'anonymous';
-  img.onload = () => {
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#13151a';
-    ctx.fillRect(0, 0, 72, 72);
-    ctx.drawImage(img, 4, 4, 64, 64);
-  };
+  const TARGET_URL = 'https://inm0d1um.github.io/Finanalytica/';
+  const encoded = encodeURIComponent(TARGET_URL);
+  const img = document.getElementById('qr-img');
+  // 200x200 px, fondo oscuro, color verde accent, margen generoso
+  img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=10&bgcolor=1a1d24&color=4fffb0&data=${encoded}`;
   img.onerror = () => {
-    // Fallback: mostrar ícono si no carga el QR
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#1a1d24';
-    ctx.fillRect(0, 0, 72, 72);
-    ctx.fillStyle = '#4fffb0';
-    ctx.font = 'bold 28px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('QR', 36, 44);
+    // Fallback a QR con fondo blanco si falla el color personalizado
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=10&data=${encoded}`;
   };
-  img.src = `https://api.qrserver.com/v1/create-qr-code/?size=64x64&bgcolor=13151a&color=4fffb0&data=${url}`;
 })();
 
 // ── API KEY MANAGEMENT ──
@@ -2371,7 +2373,42 @@ async function probarApiKey() {
 document.getElementById('config-modal').addEventListener('click', function(e) {
   if (e.target === this) cerrarConfig();
 });
-</script>
+
+// ── BIENVENIDA ──
+function confirmarBienvenida() {
+  const nombre = document.getElementById('welcome-nombre').value.trim();
+  const periodo = document.getElementById('welcome-periodo').value.trim();
+  if (!nombre) { document.getElementById('welcome-nombre').focus(); toast('Ingresa el nombre de la empresa', 'err'); return; }
+  if (!periodo) { document.getElementById('welcome-periodo').focus(); toast('Ingresa el período', 'err'); return; }
+  // Guardar en los campos del formulario principal
+  document.getElementById('f-nombre').value = nombre;
+  document.getElementById('f-periodo').value = periodo;
+  // Actualizar sidebar
+  document.getElementById('sb-nombre').textContent = nombre;
+  document.getElementById('sb-periodo').textContent = 'Período ' + periodo;
+  // Guardar en localStorage para no preguntar de nuevo
+  localStorage.setItem('fa_empresa', nombre);
+  localStorage.setItem('fa_periodo', periodo);
+  // Cerrar modal
+  document.getElementById('welcome-modal').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderCsvFieldTable();
+  // Mostrar modal de bienvenida solo si no hay datos guardados
+  const empresa = localStorage.getItem('fa_empresa');
+  const periodo = localStorage.getItem('fa_periodo');
+  if (empresa && periodo) {
+    document.getElementById('f-nombre').value = empresa;
+    document.getElementById('f-periodo').value = periodo;
+    document.getElementById('sb-nombre').textContent = empresa;
+    document.getElementById('sb-periodo').textContent = 'Período ' + periodo;
+    document.getElementById('welcome-modal').style.display = 'none';
+  } else {
+    document.getElementById('welcome-modal').style.display = 'flex';
+    setTimeout(() => document.getElementById('welcome-nombre').focus(), 100);
+  }
+});</script>
 
 </body>
 </html>
