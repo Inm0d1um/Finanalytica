@@ -1,0 +1,69 @@
+﻿# FinAnalytica — Plantilla Universal de Datos Financieros
+# Instrucciones:
+#   1. Reemplaza los valores de ejemplo (columna B) con los datos reales
+#   2. No cambies los nombres de campo (columna A)
+#   3. Los valores numericos sin puntos de miles (ej: 1500000 no 1.500.000)
+#   4. Puedes abrir este archivo directamente en Excel o Google Sheets
+#   5. Guarda como CSV UTF-8 antes de subir
+# Separador: coma (,) — tambien acepta punto y coma (;) o tabulacion
+#
+# ── IDENTIFICACIÓN ────────────────────────
+# Nombre de la empresa [REQUERIDO]
+empresa,Mi Empresa S.A.
+# Período / Año fiscal [REQUERIDO]
+periodo,2024
+#
+# ── BALANCE — ACTIVOS CORRIENTES ──────────
+# Caja y Bancos
+caja_bancos,5000000
+# Cuentas por Cobrar (CxC)
+cuentas_cobrar,12000000
+# Inventarios / Existencias
+inventarios,8000000
+# Otros Activos Corrientes
+otros_activo_corr,1000000
+#
+# ── BALANCE — ACTIVOS NO CORRIENTES ───────
+# Activo Fijo Neto (PPE)
+activo_fijo_neto,30000000
+# Otros Activos No Corrientes
+otros_activo_nc,2000000
+#
+# ── BALANCE — PASIVOS CORRIENTES ──────────
+# Deuda Corto Plazo
+deuda_corto_plazo,6000000
+# Cuentas por Pagar (CxP)
+cuentas_pagar,9000000
+# Otros Pasivos Corrientes
+otros_pasivo_corr,1500000
+#
+# ── BALANCE — PASIVOS NO CORRIENTES ───────
+# Deuda Largo Plazo
+deuda_largo_plazo,15000000
+# Otros Pasivos No Corrientes
+otros_pasivo_nc,1000000
+#
+# ── BALANCE — PATRIMONIO ──────────────────
+# Capital Social
+capital,10000000
+# Utilidades Retenidas
+utilidades_ret,6000000
+# Otros Componentes Patrimoniales
+otros_patrimonio,500000
+#
+# ── ESTADO DE RESULTADOS ──────────────────
+# Ingresos / Ventas [REQUERIDO]
+ingresos_ventas,80000000
+# Costo de Ventas (CMV)
+costo_ventas,48000000
+# Gastos Operativos (SGA)
+gastos_operativos,16000000
+# Gastos Financieros
+gastos_financieros,1200000
+# Otros Ingresos No Operacionales
+otros_ingresos,500000
+# Otros Egresos No Operacionales
+otros_egresos,300000
+# Impuesto a la Renta
+impuestos,4000000
+#
