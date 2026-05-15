@@ -2272,7 +2272,7 @@ if ('serviceWorker' in navigator) {
 (function generateQR() {
   // Usamos una API pública de QR solo para la URL (no datos sensibles)
   const canvas = document.getElementById('qr-canvas');
-  const url = encodeURIComponent(window.location.href.split('?')[0]);
+  const url = encodeURIComponent('https://inm0d1um.github.io/Finanalytica/');
   const img = new Image();
   img.crossOrigin = 'anonymous';
   img.onload = () => {
