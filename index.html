@@ -2039,7 +2039,7 @@ async function llamarAPI(mensajesConversacion, sistemaPrompt) {
   const apiKey   = localStorage.getItem('fa_apikey')   || '';
   const proxyUrl = localStorage.getItem('fa_proxyurl') || '';
   if (!apiKey) throw new Error('No hay API key configurada. Toca ⚙️ para configurarla.');
-  if (!proxyUrl) throw new Error('No hay URL de proxy configurada. Toca ⚙️ y pega la URL de tu Vercel API Route.');
+  if (!proxyUrl) throw new Error('No hay URL de proxy configurada. Toca ⚙️ y pega la URL de tu proxy.');
 
   const endpoint = proxyUrl.replace(/\/$/, '') + (proxyUrl.includes('/v1/messages') ? '' : '/v1/messages');
   const response = await fetch(endpoint, {
@@ -2232,13 +2232,13 @@ if ('serviceWorker' in navigator) {
     <div class="modal-title">⚙️ Configuración</div>
     <div class="modal-sub">Todo se guarda solo en este dispositivo. El proxy es necesario para evitar bloqueos CORS del navegador.</div>
 
-    <div class="modal-label" style="margin-bottom:6px">🔗 URL del Proxy en Vercel</div>
+    <div class="modal-label" style="margin-bottom:6px">🔗 URL del Proxy</div>
     <input class="modal-input show-key" id="modal-proxyurl" type="text"
-           placeholder="https://finanalytica.vercel.app/api/proxy"
+           placeholder="https://tu-usuario.github.io/tu-repo/api/proxy"
            oninput="onApiKeyInput()" autocomplete="off" spellcheck="false"
            style="-webkit-text-security:none;margin-bottom:6px">
     <div style="font-size:11px;color:var(--text3);margin-bottom:14px;line-height:1.5">
-      ¿No tienes proxy? Despliega el repo en <a href="https://vercel.com" target="_blank" style="color:var(--accent);text-decoration:none">vercel.com</a> — incluye el archivo <strong style="color:var(--text2)">api/proxy.js</strong> que actúa como proxy automáticamente.
+      GitHub Pages no soporta proxies server-side. Crea un proxy gratuito en <a href="https://workers.cloudflare.com" target="_blank" style="color:var(--accent);text-decoration:none">Cloudflare Workers</a> (gratis, 5 min) y pega su URL aquí.
     </div>
 
     <div class="modal-label" style="margin-bottom:6px">🔑 API Key de Anthropic</div>
@@ -2329,7 +2329,7 @@ function guardarApiKey() {
   const key   = document.getElementById('modal-apikey').value.trim();
   const proxy = document.getElementById('modal-proxyurl').value.trim();
   if (!key)   { setModalStatus(false, '⚠️ Ingresa una API key válida'); return; }
-  if (!proxy) { setModalStatus(false, '⚠️ Ingresa la URL del proxy en Vercel'); return; }
+  if (!proxy) { setModalStatus(false, '⚠️ Ingresa la URL del proxy'); return; }
   localStorage.setItem('fa_apikey', key);
   localStorage.setItem('fa_proxyurl', proxy);
   document.getElementById('btn-config').classList.add('configured');
