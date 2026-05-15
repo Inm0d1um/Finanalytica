@@ -2036,17 +2036,12 @@ function formatearRespuestaIA(texto) {
 }
 
 async function llamarAPI(mensajesConversacion, sistemaPrompt) {
-  const apiKey   = localStorage.getItem('fa_apikey')   || '';
-  const proxyUrl = localStorage.getItem('fa_proxyurl') || '';
-  if (!apiKey) throw new Error('No hay API key configurada. Toca ⚙️ para configurarla.');
-  if (!proxyUrl) throw new Error('No hay URL de proxy configurada. Toca ⚙️ y pega la URL de tu proxy.');
-
+  const proxyUrl = localStorage.getItem('fa_proxyurl') || 'https://finanalytica-proxy.valentinrenatosalasovalle.workers.dev';
   const endpoint = proxyUrl.replace(/\/$/, '');
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Api-Key': apiKey,
       'Anthropic-Version': '2023-06-01',
     },
     body: JSON.stringify({
@@ -2250,29 +2245,18 @@ if ('serviceWorker' in navigator) {
 <div class="modal-backdrop" id="config-modal" onclick="e=>e.target===this&&cerrarConfig()">
   <div class="modal-box" onclick="event.stopPropagation()">
     <div class="modal-title">⚙️ Configuración</div>
-    <div class="modal-sub">Todo se guarda solo en este dispositivo. El proxy es necesario para evitar bloqueos CORS del navegador.</div>
+    <div class="modal-sub">Pega la URL de tu Worker de Cloudflare para activar el Asesor IA.</div>
 
-    <div class="modal-label" style="margin-bottom:6px">🔗 URL del Proxy</div>
+    <div class="modal-label" style="margin-bottom:6px">🔗 URL del Proxy (Cloudflare Worker)</div>
     <input class="modal-input show-key" id="modal-proxyurl" type="text"
-           placeholder="https://tu-usuario.github.io/tu-repo/api/proxy"
+           placeholder="https://finanalytica-proxy.tu-usuario.workers.dev"
            oninput="onApiKeyInput()" autocomplete="off" spellcheck="false"
            style="-webkit-text-security:none;margin-bottom:6px">
     <div style="font-size:11px;color:var(--text3);margin-bottom:14px;line-height:1.5">
-      GitHub Pages no soporta proxies server-side. Crea un proxy gratuito en <a href="https://workers.cloudflare.com" target="_blank" style="color:var(--accent);text-decoration:none">Cloudflare Workers</a> (gratis, 5 min) y pega su URL aquí.
+      Crea tu proxy gratuito en <a href="https://workers.cloudflare.com" target="_blank" style="color:var(--accent);text-decoration:none">Cloudflare Workers</a> (gratis, 5 min).
     </div>
 
-    <div class="modal-label" style="margin-bottom:6px">🔑 API Key de Anthropic</div>
-    <input class="modal-input" id="modal-apikey" type="password" placeholder="sk-ant-api03-..." 
-           oninput="onApiKeyInput()" autocomplete="off" spellcheck="false">
-    <div style="display:flex;align-items:center;gap:6px;margin-top:8px;cursor:pointer" onclick="toggleShowKey()">
-      <input type="checkbox" id="show-key-chk" style="accent-color:var(--accent);cursor:pointer">
-      <label for="show-key-chk" style="font-size:11px;color:var(--text3);cursor:pointer">Mostrar key</label>
-    </div>
     <div class="modal-status" id="modal-status"></div>
-    <div class="modal-hint">
-      <span style="color:var(--accent);font-size:14px">ℹ</span>
-      <span>Obtén tu key en <strong style="color:var(--text2)">console.anthropic.com</strong>. Nunca aparece en el código fuente.</span>
-    </div>
 
     <div class="modal-row">
       <button class="btn btn-accent" style="flex:1" onclick="guardarApiKey()">Guardar</button>
@@ -2297,30 +2281,21 @@ if ('serviceWorker' in navigator) {
 })();
 
 // ── API KEY MANAGEMENT ──
+const DEFAULT_PROXY = 'https://finanalytica-proxy.valentinrenatosalasovalle.workers.dev';
 function initApiKey() {
-  const stored = localStorage.getItem('fa_apikey') || '';
-  if (stored) {
-    document.getElementById('btn-config').classList.add('configured');
-    document.getElementById('btn-config').title = 'API Key configurada ✓';
-  }
+  document.getElementById('btn-config').classList.add('configured');
+  document.getElementById('btn-config').title = 'Proxy configurado ✓';
 }
 initApiKey();
 
 function abrirConfig() {
-  document.getElementById('modal-apikey').value  = localStorage.getItem('fa_apikey')   || '';
-  document.getElementById('modal-proxyurl').value = localStorage.getItem('fa_proxyurl') || '';
+  document.getElementById('modal-proxyurl').value = localStorage.getItem('fa_proxyurl') || DEFAULT_PROXY;
   document.getElementById('modal-status').style.display = 'none';
   document.getElementById('config-modal').classList.add('open');
-  setTimeout(() => document.getElementById('modal-apikey').focus(), 100);
+  setTimeout(() => document.getElementById('modal-proxyurl').focus(), 100);
 }
 function cerrarConfig() {
   document.getElementById('config-modal').classList.remove('open');
-}
-function toggleShowKey() {
-  const inp = document.getElementById('modal-apikey');
-  const chk = document.getElementById('show-key-chk');
-  inp.classList.toggle('show-key', chk.checked);
-  inp.type = chk.checked ? 'text' : 'password';
 }
 function onApiKeyInput() {
   document.getElementById('modal-status').style.display = 'none';
@@ -2332,29 +2307,23 @@ function setModalStatus(ok, msg) {
   el.style.display = 'block';
 }
 function guardarApiKey() {
-  const key   = document.getElementById('modal-apikey').value.trim();
   const proxy = document.getElementById('modal-proxyurl').value.trim();
-  if (!key)   { setModalStatus(false, '⚠️ Ingresa una API key válida'); return; }
   if (!proxy) { setModalStatus(false, '⚠️ Ingresa la URL del proxy'); return; }
-  localStorage.setItem('fa_apikey', key);
   localStorage.setItem('fa_proxyurl', proxy);
   document.getElementById('btn-config').classList.add('configured');
-  document.getElementById('btn-config').title = 'Configuración guardada ✓';
+  document.getElementById('btn-config').title = 'Proxy configurado ✓';
   setModalStatus(true, '✓ Configuración guardada en este dispositivo');
   setTimeout(cerrarConfig, 1200);
 }
 async function probarApiKey() {
-  const key   = document.getElementById('modal-apikey').value.trim();
-  const proxy = document.getElementById('modal-proxyurl').value.trim();
-  if (!key)   { setModalStatus(false, '⚠️ Ingresa una API key primero'); return; }
-  if (!proxy) { setModalStatus(false, '⚠️ Ingresa la URL del proxy primero'); return; }
+  const proxy = (document.getElementById('modal-proxyurl').value.trim()) || DEFAULT_PROXY;
   setModalStatus(true, '⏳ Probando conexión...');
   try {
     let r;
     try {
       r = await fetch(proxy.replace(/\/$/, ''), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Api-Key': key, 'Anthropic-Version': '2023-06-01' },
+        headers: { 'Content-Type': 'application/json', 'Anthropic-Version': '2023-06-01' },
         body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 16, messages: [{ role: 'user', content: 'di ok' }] })
       });
     } catch(e) { throw new Error('No se pudo conectar al proxy — ¿la URL es correcta?'); }
